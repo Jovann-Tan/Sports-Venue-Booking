@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SportsVenueBooking.Configurations.Entities;
 using SportsVenueBooking.Domain;
 
 namespace SportsVenueBooking.Data
@@ -19,5 +20,12 @@ namespace SportsVenueBooking.Data
         public DbSet<SportsVenueBooking.Domain.Payment> Payment { get; set; } = default!;
         public DbSet<SportsVenueBooking.Domain.Staff> Staff { get; set; } = default!;
         public DbSet<SportsVenueBooking.Domain.Venue> Venue { get; set; } = default!;
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.ApplyConfiguration(new VenueSeed());
+        }
     }
 }
