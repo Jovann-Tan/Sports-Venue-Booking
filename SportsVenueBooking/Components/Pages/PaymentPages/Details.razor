@@ -1,0 +1,52 @@
+﻿@page "/payments/details"
+@using Microsoft.EntityFrameworkCore
+@using SportsVenueBooking.Domain
+@inject IDbContextFactory<SportsVenueBooking.Data.SportsVenueBookingContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Payment</h2>
+    <hr />
+    @if (payment is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">CardNumber</dt>
+            <dd class="col-sm-10">@payment.CardNumber</dd>
+            <dt class="col-sm-2">CardName</dt>
+            <dd class="col-sm-10">@payment.CardName</dd>
+            <dt class="col-sm-2">ExpirationDate</dt>
+            <dd class="col-sm-10">@payment.ExpirationDate</dd>
+            <dt class="col-sm-2">Code</dt>
+            <dd class="col-sm-10">@payment.Code</dd>
+        </dl>
+        <div>
+            <a href="@($"/payments/edit?id={payment.Id}")">Edit</a> |
+            <a href="@($"/payments")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Payment? payment;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        payment = await context.Payment.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (payment is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}
