@@ -132,16 +132,6 @@
         public string Email { get; set; } = "";
 
         [Required]
-        [ContactNumber]
-        [Display(Name = "Contact No.")]
-        public int ContactNumber { get; set; } = "";
-
-        [Required]
-        [DateOfBirth]
-        [Display(Name = "Date of Birth")]
-        public DateOnly DateOfBirth { get; set; } = "";
-
-        [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
