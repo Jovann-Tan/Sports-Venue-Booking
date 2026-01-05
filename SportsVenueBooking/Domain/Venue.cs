@@ -1,6 +1,6 @@
 ﻿namespace SportsVenueBooking.Domain
 {
-    public class Venue
+    public class Venue : BaseDomainModel
     {
         public int CourtNumber { get; set; }
         public string? Address { get; set; }
