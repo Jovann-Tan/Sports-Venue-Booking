@@ -49,7 +49,6 @@
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
         username = await UserManager.GetUserNameAsync(user);
         phoneNumber = await UserManager.GetPhoneNumberAsync(user);
-
         Input.PhoneNumber ??= phoneNumber;
     }
 
@@ -73,7 +72,5 @@
         [Phone]
         [Display(Name = "Phone number")]
         public string? PhoneNumber { get; set; }
-
-        [DateOfBirth]
     }
 }
