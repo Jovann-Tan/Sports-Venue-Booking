@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using SportsVenueBooking.Data
+@using System.Diagnostics
 
 @inject UserManager<SportsVenueBookingUser> UserManager
 @inject IUserStore<SportsVenueBookingUser> UserStore
@@ -42,16 +43,15 @@
                 <label for="confirm-password">Confirm Password</label>
                 <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
             </div>
+            <div class="form-floating mb-3">
+                <InputDate @bind-Value="Input.DateOfBirth" class="form-control" />
+                <label asp-for="Input.DateOfBirth" class="form-label">@Input.DateOfBirthMetadata?.DisplayName</label>
+                <ValidationMessage For="() => Input.DateOfBirth" class="text-danger" />
+            </div>
             <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </EditForm>
     </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            <ExternalLoginPicker />
-        </section>
-    </div>
+    <Component />
 </div>
 
 @code {
@@ -124,6 +124,7 @@
         return (IUserEmailStore<SportsVenueBookingUser>)UserStore;
     }
 
+    [DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
     private sealed class InputModel
     {
         [Required]
@@ -137,10 +138,30 @@
         [Display(Name = "Password")]
         public string Password { get; set; } = "";
 
+        [Required]
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = "";
 
-    }
-}
+        [DataType(DataType.Date)]
+        [Display(Name = "Date of Birth")]
+
+        public static ValidationResult ValidateDateOfBirth(DateTime? dateOfBirth, ValidationContext context)
+        {
+            if (!dateOfBirth.HasValue)
+                return ValidationResult.Success;
+
+            var minDate = DateTime.Today.AddYears(-13);
+            var maxDate = DateTime.Today.AddYears(-100);
+
+            if (dateOfBirth > minDate)
+                return new ValidationResult("You must be at least 13 years old.");
+
+            return ValidationResult.Success;
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return ToString();
+        }
