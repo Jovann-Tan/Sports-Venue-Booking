@@ -1,0 +1,106 @@
+﻿@page "/Account/Manage/DateOfBirth"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using SportsVenueBooking.Data
+
+@inject UserManager<SportsVenueBookingUser> UserManager
+@inject IdentityUserAccessor UserAccessor
+@inject NavigationManager NavigationManager
+
+<PageTitle>Manage Date of Birth</PageTitle>
+
+<h3>Manage Date of Birth</h3>
+
+<StatusMessage Message="@message" />
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="Input" OnValidSubmit="OnValidSubmitAsync" method="post">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+
+            @if (!string.IsNullOrEmpty(currentDateOfBirth))
+            {
+                <div class="form-floating mb-3">
+                    <input type="text" value="@currentDateOfBirth" class="form-control" disabled />
+                    <label class="form-label">Current Date of Birth</label>
+                </div>
+            }
+
+            <div class="form-floating mb-3">
+                <InputDate @bind-Value="Input.DateOfBirth" class="form-control" aria-required="true" />
+                <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                <ValidationMessage For="() => Input.DateOfBirth" class="text-danger" />
+            </div>
+
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Update Date of Birth</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private string? message;
+    private SportsVenueBookingUser user = default!;
+    private string? currentDateOfBirth;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    private InputModel Input { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+
+        // Check if you have a date of birth field in your user model
+        // You might need to adjust this based on your actual user model
+        if (user.DateOfBirth.HasValue) // Assuming you have a DateOfBirth property
+        {
+            currentDateOfBirth = user.DateOfBirth.Value.ToString("yyyy-MM-dd");
+        }
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        // Update the user's date of birth
+        // This assumes you have a DateOfBirth property in your SportsVenueBookingUser class
+        user.DateOfBirth = Input.DateOfBirth;
+        var result = await UserManager.UpdateAsync(user);
+
+        if (result.Succeeded)
+        {
+            message = "Your date of birth has been updated.";
+        }
+        else
+        {
+            message = "Error updating date of birth.";
+        }
+    }
+
+    private sealed class InputModel
+    {
+        [Required(ErrorMessage = "Date of birth is required")]
+        [DataType(DataType.Date)]
+        [Display(Name = "Date of Birth")]
+        [CustomValidation(typeof(InputModel), nameof(ValidateDateOfBirth))]
+        public DateTime? DateOfBirth { get; set; }
+
+        public static ValidationResult ValidateDateOfBirth(DateTime? dateOfBirth, ValidationContext context)
+        {
+            if (!dateOfBirth.HasValue)
+                return ValidationResult.Success;
+
+            // Validate age range (example: must be at least 13 years old)
+            var minDate = DateTime.Today.AddYears(-13);
+            var maxDate = DateTime.Today.AddYears(-100); // Assuming maximum 100 years old
+
+            if (dateOfBirth > minDate)
+                return new ValidationResult("You must be at least 13 years old.");
+
+            if (dateOfBirth < maxDate)
+                return new ValidationResult("Please enter a valid date of birth.");
+
+            return ValidationResult.Success;
+        }
+    }
+}

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace SportsVenueBooking.Data
 {
@@ -7,5 +8,8 @@ namespace SportsVenueBooking.Data
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? DateOfBirth { get; set; }
     }
 }
